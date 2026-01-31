@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install system dependencies if needed (e.g. for pdfplumber dependencies)
 RUN apt-get update \
-    && apt-get install -y build-essential \
+    && apt-get install -y build-essential tzdata \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./requirements.txt
