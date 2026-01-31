@@ -1,0 +1,86 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+.Python
+*.pyc
+
+# Environment / virtualenv
+.venv/
+venv/
+env/
+ENV/
+
+# IDE / editor
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build / reports
+/reports/
+*.log
+*.tmp
+*.temp
+
+# Environment secrets
+server/secrets/
+.env
+.env.*
+credentials.json
+token.json
+*.pem
+*.key
+
+# Data files
+dados/
+data/*
+!data/.gitkeep
+secrets/*
+secrets/drive-sa.json
+test/
+
+# Coverage / test
+.coverage
+htmlcov/
+coverage.xml
+pytest.ini
+/tests/__pycache__/
+.pytest_cache/
+
+# Excel / Office temporary files
+~$*.xlsx
+~$*.xls
+~$*.doc*
+*.xlk
+
+# Output files (test results)
+resultado_teste_*.xlsx
+conciliacao_*.xlsx
+error_log.txt
+conciliaçao.xlsx
+test/conciliaçao.xlsx
+SETA.sql
+
+# Tauri build artifacts
+client/src-tauri/target/
+client/dist/
+
+# Node modules
+client/node_modules/
+
+# Misc
+*.bak
+*.orig
+secrets/
+tests/
+secrets/

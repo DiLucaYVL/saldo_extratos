@@ -1,0 +1,17 @@
+﻿version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: conciliacao_api
+    working_dir: /app
+    env_file:
+      - .env
+    volumes:
+      - .:/app/server
+      - ../dados:/app/dados
+    ports:
+      - "55000:55000"
+    command: uvicorn server.main:app --host 0.0.0.0 --port 55000 --reload

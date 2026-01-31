@@ -1,0 +1,11 @@
+requests
+pandas
+google-api-python-client
+google-auth-oauthlib
+google-auth-httplib2
+python-dotenv
+pdfplumber
+rapidfuzz
+# Optional/Dev
+black
+pylint
