@@ -138,8 +138,8 @@ def main():
     
     logger.info("Starting Scheduler Service...")
     
-    # Schedule: 08, 10, 12, 14, 16, 18, 23
-    times = ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "23:00"]
+    # Schedule: 08, 08:30, 09:00, 10, 12, 14, 16, 18, 23
+    times = ["08:00", "08:30", "09:00", "10:00", "12:00", "14:00", "16:00", "18:00", "23:00"]
     
     for t in times:
         schedule.every().day.at(t).do(run_scheduled_job)
