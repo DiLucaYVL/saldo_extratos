@@ -6,6 +6,7 @@ google-auth-httplib2
 python-dotenv
 pdfplumber
 rapidfuzz
+schedule
 # Optional/Dev
 black
 pylint

@@ -4,6 +4,8 @@ Orchestrates the flow: Drive Download -> Extraction -> Date Logic -> Sheets Uplo
 """
 import sys
 import logging
+import time
+import schedule
 import pandas as pd
 from datetime import datetime, date
 from pathlib import Path
@@ -21,19 +23,15 @@ from server.app.ingestao.sheets_writer import GoogleSheetsWriter
 
 logger = logging.getLogger("main")
 
-def main():
-    setup_logging()
-    logger.info("Starting Daily Conciliation Workflow")
-    Config.validate()
-    
-    # 1. Determine Dates
-    today = datetime.now().date()
-    # today = date(2026, 1, 29) # Uncomment to simulate specific date
+def process_date(target_date: date):
+    """
+    Executes the conciliation workflow for a specific date.
+    """
+    logger.info(f"Processo de Extração Iniciado para a data: {target_date.strftime('%d/%m/%Y')}")
     
     # Calculate the date to be used in the report (Previous Business Day)
-    upload_date_str = get_previous_business_day(today)
-    logger.info(f"Today's Date: {today.strftime('%d/%m/%Y')}")
-    logger.info(f"Target Drive Search Date: {today.strftime('%d/%m/%Y')}")
+    upload_date_str = get_previous_business_day(target_date)
+    logger.info(f"Target Drive Search Date: {target_date.strftime('%d/%m/%Y')}")
     logger.info(f"Date to Upload to Sheets: {upload_date_str}")
     
     # 2. Setup Sheets Writer (Check duplicates first)
@@ -50,6 +48,7 @@ def main():
 
     # 3. Setup Drive Client and Locator
     # (Uses secrets/google_drive.json)
+    locator = None
     try:
         drive_creds = Path(Config.DRIVE_SA_CREDENTIALS_PATH)
         if not drive_creds.exists():
@@ -73,11 +72,11 @@ def main():
     logger.info("Searching for files in Google Drive...")
     downloaded_files = []
     try:
-        # Search for today's folder, passing existing accounts to skip
-        downloaded_files = locator.locate(today, today, existing_accounts)
+        # Search for target_date folder, passing existing accounts to skip
+        downloaded_files = locator.locate(target_date, target_date, existing_accounts)
         
         if not downloaded_files:
-            logger.warning(f"No files found (or all skipped) for date {today.strftime('%d/%m/%Y')} in Drive.")
+            logger.warning(f"No files found (or all skipped) for date {target_date.strftime('%d/%m/%Y')} in Drive.")
             # Depending on business rule, we might stop here.
             # But we proceed to cleanup just in case.
         else:
@@ -117,9 +116,40 @@ def main():
             logger.error(f"Error during extraction or upload: {e}", exc_info=True)
     
     # 7. Cleanup
-    logger.info("Cleaning up temporary files...")
-    locator.cleanup()
-    logger.info("Workflow finished.")
+    if locator:
+        logger.info("Cleaning up temporary files...")
+        locator.cleanup()
+    logger.info("One-off Workflow finished.")
+
+def run_scheduled_job():
+    """
+    Wrapper to run the job only on weekdays.
+    """
+    now = datetime.now()
+    if now.weekday() < 5: # 0-4 is Mon-Fri
+        logger.info(f"Starting scheduled execution at {now}")
+        process_date(now.date())
+    else:
+        logger.info("Skipping execution (Weekend)")
+
+def main():
+    setup_logging()
+    Config.validate()
+    
+    logger.info("Starting Scheduler Service...")
+    
+    # Schedule: 08, 10, 12, 14, 16, 18, 23
+    times = ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "23:00"]
+    
+    for t in times:
+        schedule.every().day.at(t).do(run_scheduled_job)
+        logger.info(f"Scheduled job for {t}")
+
+    logger.info("Scheduler is running. Press Ctrl+C to stop.")
+    
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
 
 if __name__ == "__main__":
     main()
